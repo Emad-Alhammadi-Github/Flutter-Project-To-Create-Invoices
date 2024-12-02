@@ -1,0 +1,375 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:incpi/widget/Table_Data.dart';
+import 'package:incpi/widget/Text_Filed.dart';
+import 'package:intl/intl.dart';
+
+import 'Add_Serves.dart';
+import 'Controllers/Home_Controllers.dart';
+
+class Home extends StatelessWidget {
+  Color co1 = Color.fromRGBO(237, 125, 49, .9);
+  Color co2 = Color.fromRGBO(251, 228, 214, 1.0);
+
+  Home_controllers _home_controllers = Get.put(Home_controllers());
+
+  @override
+  Widget build(BuildContext context) {
+    _home_controllers.Get_Data();
+    return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: FloatingActionButton(
+            onPressed: () {
+              Get.to(() => Add_Serves(), transition: Transition.size);
+            },
+            tooltip: "أضافه قيد جديد",
+            backgroundColor: const Color.fromRGBO(239, 89, 41, 1),
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 35,
+            )),
+      ),
+      body: SafeArea(
+          child: GetBuilder(
+        init: Home_controllers(),
+        builder: (con) => _home_controllers.lodding
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black12,
+                              offset: Offset(0, 0),
+                              blurRadius: 10)
+                        ]),
+                    child: Center(
+                      child: Image.asset(
+                        "Assets/logo.jpg",
+                        width: 200,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 20, 8, 0),
+                      child: _home_controllers.data.length > 0
+                          ? Table_Data(
+                              isSmoll: false,
+                              color: co1,
+                              serves: "الخدمة",
+                              price: "السعر",
+                              note: "ملاجظات")
+                          : Center(
+                              child: Container(
+                                  margin: EdgeInsets.only(top: 270),
+                                  child: Text(
+                                    "اضغط علئ علامه ( + ) لاضافه بيانات ",
+                                    style: TextStyle(
+                                        fontSize: 22, color: Colors.grey[500]),
+                                  )),
+                            )),
+                  Expanded(
+                    child: Container(
+                      child: ListView.builder(
+                          padding: EdgeInsets.all(8),
+                          itemCount: _home_controllers.data.length + 1,
+                          itemBuilder: (context, index) {
+                            return index < _home_controllers.data.length
+                                ? InkWell(
+                                    onLongPress: () {
+                                      Get.dialog(Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 80, vertical: 320),
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                        child: Column(
+                                          children: [
+                                            Expanded(
+                                                child: MaterialButton(
+                                              onPressed: () {
+                                                _home_controllers.Updata(
+                                                    _home_controllers
+                                                        .data[index]["id"],
+                                                    "${_home_controllers.data[index]["serves"]}",
+                                                    "${_home_controllers.data[index]["price"]}",
+                                                    "${_home_controllers.data[index]["notes"]}");
+                                              },
+                                              child: Container(
+                                                margin: EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    color: Colors.blue),
+                                                child: Center(
+                                                  child: Text(
+                                                    "تعديل",
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        color: Colors.white,
+                                                        decoration:
+                                                            TextDecoration
+                                                                .none),
+                                                  ),
+                                                ),
+                                              ),
+                                            )),
+                                            Divider(
+                                                color: co1,
+                                                thickness: 3,
+                                                endIndent: 5,
+                                                indent: 5),
+                                            Expanded(
+                                                child: MaterialButton(
+                                              onPressed: () {
+                                                _home_controllers.Delete_Data(
+                                                    _home_controllers
+                                                        .data[index]["id"]);
+                                              },
+                                              child: Container(
+                                                margin: EdgeInsets.all(8),
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    color: Colors.red),
+                                                child: Center(
+                                                  child: Text(
+                                                    "حذف",
+                                                    style: TextStyle(
+                                                        fontSize: 20,
+                                                        color: Colors.white,
+                                                        decoration:
+                                                            TextDecoration
+                                                                .none),
+                                                  ),
+                                                ),
+                                              ),
+                                            )),
+                                          ],
+                                        ),
+                                      ));
+                                    },
+                                    child: Table_Data(
+                                        isSmoll: true,
+                                        color:
+                                            index % 2 == 0 ? co2 : Colors.white,
+                                        serves:
+                                            "${_home_controllers.data[index]["serves"]}",
+                                        price:
+                                            " ${_home_controllers.data[index]["price"]} \$",
+                                        note:
+                                            "${_home_controllers.data[index]["notes"]}"),
+                                  )
+                                : Column(
+                                    children: [
+                                      InkWell(
+                                          onTap: () {
+                                            Get.defaultDialog(
+                                                title: "تنبيه",
+                                                backgroundColor: Colors.white,
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text_Flied(
+                                                        controller_:
+                                                            _home_controllers
+                                                                .target,
+                                                        keyboardType_:
+                                                            TextInputType.name,
+                                                        labelText: "الجهه",
+                                                        maxLines: 1),
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 30),
+                                                      child: InkWell(
+                                                        onTap: () {
+                                                          _home_controllers
+                                                              .Date_Picker(
+                                                                  context);
+                                                        },
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .calendar_month_outlined,
+                                                              color: co1,
+                                                            ),
+                                                            GetBuilder(
+                                                                init:
+                                                                    Home_controllers(),
+                                                                builder: (cont) =>
+                                                                    Text(
+                                                                        "${DateFormat.yMEd().format(cont.date_Time)}"))
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    InkWell(
+                                                      onTap: () {
+                                                        _home_controllers
+                                                            .Get_BDF();
+                                                      },
+                                                      child: Container(
+                                                        width: double.infinity,
+                                                        height: 50,
+                                                        margin:
+                                                            EdgeInsets.all(20),
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        30),
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    237,
+                                                                    125,
+                                                                    49,
+                                                                    .7)),
+                                                        child: Center(
+                                                            child: Text(
+                                                          "طباعه ",
+                                                          style: TextStyle(
+                                                              fontSize: 22),
+                                                        )),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ));
+                                          },
+                                          child: _home_controllers.data.length >
+                                                  0
+                                              ? Container(
+                                                  width: double.infinity,
+                                                  height: 50,
+                                                  margin: EdgeInsets.all(20),
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30),
+                                                      color: Color.fromRGBO(
+                                                          237, 125, 49, .7)),
+                                                  child: const Center(
+                                                      child: Text(
+                                                    "طباعه التقرير",
+                                                    style:
+                                                        TextStyle(fontSize: 22),
+                                                  )),
+                                                )
+                                              : Container()),
+                                      InkWell(
+                                          onTap: () {
+                                            Get.defaultDialog(
+                                              title: "تنبيه",
+                                              middleText:
+                                                  "أنت علئ وشك حذف كل البيانات !",
+                                              confirm: Row(
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () {
+                                                      _home_controllers
+                                                          .Delete_All_Data();
+                                                    },
+                                                    child: Container(
+                                                      width: 100,
+                                                      height: 50,
+                                                      margin:
+                                                          EdgeInsets.all(20),
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(width: 2,color: Color.fromRGBO(
+                                                            237,
+                                                            125,
+                                                            49,
+                                                            .7)),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(30),
+                                                      ),
+                                                      child: Center(
+                                                          child: Text(
+                                                        "موافق ",
+                                                        style: TextStyle(
+                                                            fontSize: 20),
+                                                      )),
+                                                    ),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      Get.back();
+                                                    },
+                                                    child: Container(
+                                                      width: 100,
+                                                      height: 50,
+                                                      margin:
+                                                          EdgeInsets.all(20),
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(30),
+                                                          color: Color.fromRGBO(
+                                                              237,
+                                                              125,
+                                                              49,
+                                                              .7)),
+                                                      child: Center(
+                                                          child: Text(
+                                                        "ألغاء ",
+                                                        style: TextStyle(
+                                                            fontSize: 20),
+                                                      )),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          child: _home_controllers.data.length >
+                                                  0
+                                              ? Container(
+                                                  width: double.infinity,
+                                                  height: 50,
+                                                  margin: EdgeInsets.symmetric(
+                                                      horizontal: 20,
+                                                      vertical: 0),
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              30),
+                                                      color: Color.fromRGBO(
+                                                          234,
+                                                          41,
+                                                          41,
+                                                          0.7019607843137254)),
+                                                  child: const Center(
+                                                      child: Text(
+                                                    "تقرير جديد",
+                                                    style:
+                                                        TextStyle(fontSize: 22),
+                                                  )),
+                                                )
+                                              : Container()),
+                                    ],
+                                  );
+                          }),
+                    ),
+                  ),
+                ],
+              ),
+      )),
+    );
+  }
+}
